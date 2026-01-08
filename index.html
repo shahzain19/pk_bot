@@ -382,7 +382,7 @@
                 <h2>Chat with Pak Educational AI</h2>
                 <p id="status">Online | Ask anything about Pakistan</p>
             </div>
-            <button class="quiz-mode-btn" onclick="startChallenge()">� Start Challenge</button>
+            <button class="quiz-mode-btn" onclick="startQuiz()">🔥 Start Quiz</button>
         </header>
 
         <div id="chatBox">
@@ -419,6 +419,13 @@
         const userInput = document.getElementById("userInput");
         const progressBar = document.getElementById("progressBar");
 
+        let progress = 35;
+        let quizData = [
+            { q: "What is the national animal of Pakistan?", a: ["Markhor", "Tiger", "Lion", "Camel"], correct: 0 },
+            { q: "When did Pakistan become a nuclear power?", a: ["1992", "1998", "2001", "1988"], correct: 1 },
+            { q: "Who is known as the 'Father of the Nation'?", a: ["Allama Iqbal", "Quaid-e-Azam", "Liaquat Ali Khan", "Sir Syed Ahmed"], correct: 1 },
+            { q: "Which is the highest peak in Pakistan?", a: ["Nanga Parbat", "K2", "Rakaposhi", "Broad Peak"], correct: 1 }
+        ];
 
         const KNOWLEDGE_BASE = {
             history: {
@@ -495,151 +502,32 @@
             chatBox.appendChild(message);
             chatBox.scrollTop = chatBox.scrollHeight;
 
+            // Increase progress slightly for learning
             if (sender === "user") {
                 progress = Math.min(100, progress + 1);
                 progressBar.style.width = progress + "%";
             }
         }
 
-        let progress = 35;
-        let score = 0;
-        let lives = 3;
-        let gameActive = false;
-        let currentQuizIndex = -1;
-        let quizTimer = null;
-        let timeLeft = 15;
-
-        let quizData = [
-            { q: "What is the national animal of Pakistan?", a: ["Markhor", "Tiger", "Lion", "Camel"], correct: 0 },
-            { q: "When did Pakistan become a nuclear power?", a: ["1992", "1998", "2001", "1988"], correct: 1 },
-            { q: "Who is known as the 'Father of the Nation'?", a: ["Allama Iqbal", "Quaid-e-Azam", "Liaquat Ali Khan", "Sir Syed Ahmed"], correct: 1 },
-            { q: "Which is the highest peak in Pakistan?", a: ["Nanga Parbat", "K2", "Rakaposhi", "Broad Peak"], correct: 1 },
-            { q: "What is the national sport of Pakistan?", a: ["Cricket", "Football", "Field Hockey", "Kabaddi"], correct: 2 },
-            { q: "In which year did Pakistan win the Cricket World Cup?", a: ["1992", "1999", "2007", "2011"], correct: 0 },
-            { q: "Who wrote the national anthem of Pakistan?", a: ["Allama Iqbal", "Hafeez Jalandhari", "Faiz Ahmed Faiz", "Josh Malihabadi"], correct: 1 },
-            { q: "What is the national flower of Pakistan?", a: ["Rose", "Tulip", "Jasmine", "Sunflower"], correct: 2 },
-            { q: "Which city is known as the 'City of Lights'?", a: ["Lahore", "Islamabad", "Karachi", "Faisalabad"], correct: 2 },
-            { q: "Who was the first female Prime Minister of Pakistan?", a: ["Fatima Jinnah", "Benazir Bhutto", "Hina Rabbani Khar", "Asma Jahangir"], correct: 1 },
-            { q: "What is the national language of Pakistan?", a: ["Punjabi", "Sindhi", "Urdu", "Pashto"], correct: 2 },
-            { q: "Which mountain range is K2 located in?", a: ["Himalayas", "Hindu Kush", "Karakoram", "Sulaiman"], correct: 2 },
-            { q: "What does 'Pakistan' mean?", a: ["Land of the Pure", "Land of Rivers", "Land of Warriors", "Land of Peace"], correct: 0 },
-            { q: "Who is the national poet of Pakistan?", a: ["Mirza Ghalib", "Allama Iqbal", "Bulleh Shah", "Ahmad Faraz"], correct: 1 },
-            { q: "Which river is the longest in Pakistan?", a: ["Jhelum", "Chenab", "Indus", "Ravi"], correct: 2 },
-            { q: "The Badshahi Mosque was built by which Mughal Emperor?", a: ["Akbar", "Shah Jahan", "Aurangzeb", "Babur"], correct: 2 },
-            { q: "Which province of Pakistan has the largest area?", a: ["Punjab", "Sindh", "Khyber Pakhtunkhwa", "Balochistan"], correct: 3 },
-            { q: "What is the currency of Pakistan?", a: ["Dinar", "Rial", "Rupee", "Taka"], correct: 2 },
-            { q: "In which city is the Minar-e-Pakistan located?", a: ["Multan", "Lahore", "Peshawar", "Quetta"], correct: 1 },
-            { q: "Which desert is located in Bahawalpur, Punjab?", a: ["Thar", "Cholistan", "Kharan", "Thal"], correct: 1 },
-            { q: "Who holds the record for the longest javelin throw in Pakistan?", a: ["Javed Miandad", "Arshad Nadeem", "Shahid Afridi", "Imran Khan"], correct: 1 },
-            { q: "Which scientist won the Nobel Prize in Physics in 1979?", a: ["Dr. Abdul Qadeer Khan", "Dr. Abdus Salam", "Dr. Atta-ur-Rahman", "Dr. Pervez Hoodbhoy"], correct: 1 },
-            { q: "What is the national tree of Pakistan?", a: ["Banyan", "Peepal", "Deodar", "Oak"], correct: 2 },
-            { q: "Which pass connects Pakistan with China?", a: ["Khyber Pass", "Bolan Pass", "Khunjerab Pass", "Tochi Pass"], correct: 2 },
-            { q: "What is the national bird of Pakistan?", a: ["Eagle", "Chukar Partridge", "Peacock", "Parrot"], correct: 1 },
-            { q: "Which city is the capital of Pakistan?", a: ["Rawalpindi", "Lahore", "Islamabad", "Karachi"], correct: 2 },
-            { q: "When is Pakistan Day celebrated?", a: ["14 August", "23 March", "6 September", "25 December"], correct: 1 },
-            { q: "Who founded the Edhi Foundation?", a: ["Abdul Sattar Edhi", "Dr. Ruth Pfau", "Malala Yousafzai", "Imran Khan"], correct: 0 },
-            { q: "What is the height of K2?", a: ["8,126m", "8,848m", "8,611m", "7,450m"], correct: 2 },
-            { q: "Which sea is located to the south of Pakistan?", a: ["Red Sea", "Caspian Sea", "Arabian Sea", "Black Sea"], correct: 2 }
-        ];
-
-        function startChallenge() {
-            gameActive = true;
-            score = 0;
-            lives = 3;
-            progress = 35;
-            addMessage("bot", "🎮 <strong>CHALLENGE MODE ACTIVATED!</strong><br>10 Questions. 15s each. 3 Lives. Let's go!", true);
-            nextQuestion();
+        function showTyping(callback) {
+            typingIndicator.style.display = "block";
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(() => {
+                typingIndicator.style.display = "none";
+                callback();
+            }, 800 + Math.random() * 700);
         }
 
-        function nextQuestion() {
-            if (!gameActive) return;
-
-            if (lives <= 0) {
-                gameOver("GAME OVER! You ran out of lives.");
-                return;
-            }
-
-            currentQuizIndex = Math.floor(Math.random() * quizData.length);
-            const q = quizData[currentQuizIndex];
-            timeLeft = 15;
-
-            let quizHtml = `
-            <div class="quiz-card" id="gameCard">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; color: var(--accent);">
-                    <span>❤️ Lives: ${lives}</span>
-                    <span id="gameTimer">⏱️ Time: ${timeLeft}s</span>
-                    <span>⭐ Score: ${score}</span>
-                </div>
-                <h3>🧠 Challenge Question</h3>
-                <p style="margin: 15px 0; font-size: 16px;">${q.q}</p>
-                <div class="quiz-options">
-                    ${q.a.map((opt, i) => `<div class="quiz-opt" onclick="checkAnswer(${currentQuizIndex}, ${i}, true)">${opt}</div>`).join('')}
-                </div>
-            </div>
-        `;
-
-            showTyping(() => {
-                addMessage("bot", quizHtml, true);
-                startTimer();
-            });
+        function handleKey(e) {
+            if (e.key === "Enter") sendMessage();
         }
 
-        function startTimer() {
-            clearInterval(quizTimer);
-            quizTimer = setInterval(() => {
-                timeLeft--;
-                const timerDisplay = document.getElementById("gameTimer");
-                if (timerDisplay) timerDisplay.innerText = `⏱️ Time: ${timeLeft}s`;
-
-                if (timeLeft <= 0) {
-                    clearInterval(quizTimer);
-                    lives--;
-                    addMessage("bot", "⏰ Time's up! You lost a life.");
-                    setTimeout(nextQuestion, 1500);
-                }
-            }, 1000);
-        }
-
-        function gameOver(reason) {
-            gameActive = false;
-            clearInterval(quizTimer);
-            const finalMsg = `
-            <div class="quiz-card" style="border-color: var(--primary-light);">
-                <h2>🏆 ${reason}</h2>
-                <p style="font-size: 24px; margin: 20px 0;">Final Score: ${score}</p>
-                <button class="quiz-mode-btn" onclick="startChallenge()">Play Again</button>
-            </div>
-        `;
-            addMessage("bot", finalMsg, true);
-        }
-
-        function checkAnswer(qIdx, selected, isGame = false) {
-            if (isGame) clearInterval(quizTimer);
-
-            const correct = quizData[qIdx].correct;
-            if (selected === correct) {
-                const points = isGame ? 10 + timeLeft : 5;
-                score += points;
-                addMessage("bot", `✅ Correct! ${isGame ? '+' + points + ' points!' : ''}`);
-                progress = Math.min(100, progress + (isGame ? 2 : 5));
-                progressBar.style.width = progress + "%";
-
-                if (isGame) {
-                    setTimeout(nextQuestion, 1500);
-                }
-            } else {
-                if (isGame) {
-                    lives--;
-                    addMessage("bot", `❌ Wrong! The correct answer was **${quizData[qIdx].a[correct]}**. You have ${lives} lives left.`);
-                    setTimeout(nextQuestion, 1500);
-                } else {
-                    addMessage("bot", `❌ Not quite. The correct answer was **${quizData[qIdx].a[correct]}**.`);
-                }
-            }
+        function quickAsk(category) {
+            userInput.value = category;
+            sendMessage();
         }
 
         function startQuiz() {
-            if (gameActive) return;
             const quizIndex = Math.floor(Math.random() * quizData.length);
             const q = quizData[quizIndex];
 
@@ -658,6 +546,17 @@
             });
         }
 
+        function checkAnswer(qIdx, selected) {
+            const correct = quizData[qIdx].correct;
+            if (selected === correct) {
+                addMessage("bot", "✅ Correct! Excellent knowledge of Pakistan! +5 Progress Points.");
+                progress = Math.min(100, progress + 5);
+                progressBar.style.width = progress + "%";
+            } else {
+                addMessage("bot", `❌ Not quite. The correct answer was **${quizData[qIdx].a[correct]}**.`);
+            }
+        }
+
         function sendMessage() {
             const msg = userInput.value.trim();
             if (!msg) return;
@@ -673,7 +572,7 @@
                     addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
                 } else if (lowMsg.includes("culture")) {
                     const data = KNOWLEDGE_BASE.culture;
-                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                    addMessageMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
                 } else if (lowMsg.includes("geography")) {
                     const data = KNOWLEDGE_BASE.geography;
                     addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
