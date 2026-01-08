@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistan Educational AI 🇵🇰</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #006633;
+            /* Pakistan Green */
+            --primary-light: #00a859;
+            --bg: #0a0e14;
+            --surface: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #e0e6ed;
+            --text-dim: #94a3b8;
+            --accent: #ffce00;
+            --glass: rgba(15, 23, 42, 0.8);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(0, 102, 51, 0.15), transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(0, 168, 89, 0.15), transparent 40%);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .logo span {
+            color: var(--primary-light);
+        }
+
+        .category-group {
+            flex: 1;
+        }
+
+        .category-group h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+
+        .category-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            background: none;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .category-btn:hover {
+            background: var(--surface);
+            border-color: var(--border);
+            transform: translateX(4px);
+        }
+
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 102, 51, 0.3);
+        }
+
+        /* Main Chat Area */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        header {
+            padding: 24px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 14, 20, 0.5);
+            backdrop-filter: blur(8px);
+        }
+
+        .header-info h2 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .header-info p {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        .quiz-mode-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .quiz-mode-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 206, 0, 0.4);
+        }
+
+        #chatBox {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        /* Message Bubbles */
+        .message {
+            max-width: 80%;
+            padding: 16px 20px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+            animation: fadeIn 0.4s ease forwards;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-bottom-left-radius: 4px;
+        }
+
+        .bot-name {
+            font-size: 11px;
+            color: var(--primary-light);
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .typing {
+            font-style: italic;
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .input-area {
+            padding: 30px 40px;
+            background: transparent;
+        }
+
+        .input-wrapper {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            transition: 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(0, 168, 89, 0.2);
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: none;
+            border: none;
+            color: white;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .send-btn {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .send-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .chips {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            font-size: 12px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .chip:hover {
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+            background: rgba(0, 168, 89, 0.05);
+        }
+
+        /* Quiz UI */
+        .quiz-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid var(--accent);
+            padding: 24px;
+            border-radius: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .quiz-opt {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .quiz-opt:hover {
+            background: var(--primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="24" rx="6" fill="#006633" />
+                <circle cx="12" cy="12" r="6" fill="white" fill-opacity="0.2" />
+                <path d="M14 10L10 14M10 10L14 14" stroke="white" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            PakEducational<span>AI</span>
+        </div>
+
+        <div class="category-group">
+            <h3>Knowledge Hub</h3>
+            <button class="category-btn" onclick="quickAsk('history')">📜 History</button>
+            <button class="category-btn" onclick="quickAsk('culture')">🎭 Culture</button>
+            <button class="category-btn" onclick="quickAsk('geography')">🗺️ Geography</button>
+            <button class="category-btn" onclick="quickAsk('economy')">📈 Economy</button>
+            <button class="category-btn" onclick="quickAsk('sports')">🏏 Sports</button>
+            <button class="category-btn" onclick="quickAsk('tourism')">🏔️ Tourism</button>
+            <button class="category-btn" onclick="quickAsk('science')">🔬 Science</button>
+            <button class="category-btn" onclick="quickAsk('literature')">📚 Literature</button>
+            <button class="category-btn" onclick="quickAsk('architecture')">🏛️ Architecture</button>
+            <button class="category-btn" onclick="quickAsk('wildlife')">🐆 Wildlife</button>
+        </div>
+
+        <div style="margin-top: 20px; padding: 20px; background: var(--surface); border-radius: 16px;">
+            <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 8px;">Learning progress</p>
+            <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+                <div id="progressBar" style="width: 35%; height: 100%; background: var(--primary-light);"></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-container">
+        <header>
+            <div class="header-info">
+                <h2>Chat with Pak Educational AI</h2>
+                <p id="status">Online | Ask anything about Pakistan</p>
+            </div>
+            <button class="quiz-mode-btn" onclick="startQuiz()">🔥 Start Quiz</button>
+        </header>
+
+        <div id="chatBox">
+            <!-- Messages will appear here -->
+        </div>
+
+        <div id="typingIndicator" class="typing" style="margin-left: 40px; margin-bottom: 10px;">Pak AI is thinking...
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Ask about history, culture, or try 'quiz'..."
+                    onkeypress="handleKey(event)" />
+                <button class="send-btn" onclick="sendMessage()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            <div class="chips">
+                <span class="chip" onclick="quickAsk('tell me a fast fact')">Random Fact</span>
+                <span class="chip" onclick="quickAsk('who is Arshad Nadeem?')">Sports Hero</span>
+                <span class="chip" onclick="quickAsk('what is CPEC?')">Economy</span>
+                <span class="chip" onclick="quickAsk('translate hello to urdu')">Translate</span>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const chatBox = document.getElementById("chatBox");
+        const typingIndicator = document.getElementById("typingIndicator");
+        const userInput = document.getElementById("userInput");
+        const progressBar = document.getElementById("progressBar");
+
+        let progress = 35;
+        let quizData = [
+            { q: "What is the national animal of Pakistan?", a: ["Markhor", "Tiger", "Lion", "Camel"], correct: 0 },
+            { q: "When did Pakistan become a nuclear power?", a: ["1992", "1998", "2001", "1988"], correct: 1 },
+            { q: "Who is known as the 'Father of the Nation'?", a: ["Allama Iqbal", "Quaid-e-Azam", "Liaquat Ali Khan", "Sir Syed Ahmed"], correct: 1 },
+            { q: "Which is the highest peak in Pakistan?", a: ["Nanga Parbat", "K2", "Rakaposhi", "Broad Peak"], correct: 1 }
+        ];
+
+        const KNOWLEDGE_BASE = {
+            history: {
+                title: "📜 History of Pakistan",
+                content: "Pakistan's history is ancient and rich. It was home to the **Indus Valley Civilization** (3300–1300 BCE), one of the world's earliest urban cultures. Modern Pakistan was founded on **August 14, 1947**, following the Pakistan Movement led by Muhammad Ali Jinnah. Key milestones include the First Constitution (1956) and becoming the first Islamic nuclear power in 1998."
+            },
+            culture: {
+                title: "🎭 Culture & Heritage",
+                content: "Pakistan has a diverse culture blending ethnic influences like Punjabi, Sindhi, Pashto, and Balochi. The national dress is **Shalwar Kameez**. Music ranges from soulful **Qawwali** (Nusrat Fateh Ali Khan) to modern Pop. Cuisine is famous for Biryani, Nihari, and Karahi. Hospitality is a core value, especially in northern regions."
+            },
+            geography: {
+                title: "🗺️ Geography & Landscapes",
+                content: "Pakistan is geographically diverse. It hosts 5 of the 14 highest peaks in the world, including **K2**. The **Indus River** is the lifeblood of the country's agriculture. To the south lies the Arabian Sea coastline, and to the west, the rugged Balochistan plateau and the Thar desert."
+            },
+            economy: {
+                title: "📈 Economy & Development",
+                content: "Pakistan's economy is largely agrarian, being a top producer of cotton, wheat, and rice. The **China-Pakistan Economic Corridor (CPEC)** is a major infrastructure project aimed at connecting Gwadar Port to China. Key industries include textiles, surgical instruments, and sports goods (Sialkot)."
+            },
+            sports: {
+                title: "🏏 Sports Excellence",
+                content: "Cricket is the most popular sport, with Pakistan winning the World Cup in 1992. **Field Hockey** is the national sport (4-time World Champions). Recently, **Arshad Nadeem** made history by winning Gold in Javelin Throw at the Paris Olympics 2024 with a record 92.97m throw."
+            },
+            tourism: {
+                title: "🏔️ Tourism Destinations",
+                content: "Pakistan is a hidden gem for travelers. The **Hunza Valley** is called 'Heaven on Earth'. Other spots include **Skardu**, **Swat Valley**, and the historical sites of **Mohenjo-daro** and the **Badshahi Mosque**. The Karakoram Highway is often called the 8th Wonder of the World."
+            },
+            science: {
+                title: "🔬 Science & Innovation",
+                content: "Pakistan has made significant strides in science. **Dr. Abdus Salam** won the Nobel Prize in Physics (1979). The country has a robust space program (SUPARCO) and is a leader in IT exports and surgical instrument manufacturing."
+            },
+            literature: {
+                title: "📚 Literature & Poetry",
+                content: "Literature is deep-rooted, especially in Persian and Urdu. **Allama Iqbal** is the national poet whose philosophy inspired the creation of Pakistan. Other greats include Faiz Ahmed Faiz, Saadat Hasan Manto, and Bano Qudsiya."
+            },
+            architecture: {
+                title: "🏛️ Architectural Wonders",
+                content: "From the Mughal grandeur of **Badshahi Mosque** and **Lahore Fort** to the modern masterpiece **Faisal Mosque**, Pakistan's architecture spans centuries. The ruins of Taxila and Mohenjo-daro showcase ancient urban planning."
+            },
+            wildlife: {
+                title: "🐆 Wildlife & Fauna",
+                content: "Pakistan is home to the majestic **Markhor** (National Animal) and the rare **Indus River Dolphin**. The Snow Leopard stalks the northern peaks, while the Chinkara gazelle roams the southern deserts."
+            }
+        };
+
+        const FACTS = [
+            "Pakistan has the world's largest irrigation system.",
+            "The world's highest ATM is located at Khunjerab Pass (4,693m).",
+            "Sialkot produces over 70% of the world's hand-stitched soccer balls.",
+            "K2 is the second highest mountain on Earth.",
+            "Pakistan has the 6th largest standing military in the world.",
+            "The world's largest deep-sea port is in Gwadar, Pakistan.",
+            "Pakistan is the world's first Islamic country to attain nuclear power status.",
+            "Edhi Foundation operates the world's largest volunteer ambulance service.",
+            "The Salt Range in Punjab contains the world's second-largest salt mine (Khewra).",
+            "The Karakoram Highway is the highest paved international road in the world."
+        ];
+
+        function addMessage(sender, text, isHtml = false) {
+            const message = document.createElement("div");
+            message.classList.add("message", sender);
+
+            if (sender === "bot") {
+                const name = document.createElement("div");
+                name.classList.add("bot-name");
+                name.innerText = "Pak Educational AI";
+                message.appendChild(name);
+            }
+
+            const body = document.createElement("div");
+            if (isHtml) body.innerHTML = text;
+            else body.innerText = text;
+
+            message.appendChild(body);
+            chatBox.appendChild(message);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Increase progress slightly for learning
+            if (sender === "user") {
+                progress = Math.min(100, progress + 1);
+                progressBar.style.width = progress + "%";
+            }
+        }
+
+        function showTyping(callback) {
+            typingIndicator.style.display = "block";
+            chatBox.scrollTop = chatBox.scrollHeight;
+            setTimeout(() => {
+                typingIndicator.style.display = "none";
+                callback();
+            }, 800 + Math.random() * 700);
+        }
+
+        function handleKey(e) {
+            if (e.key === "Enter") sendMessage();
+        }
+
+        function quickAsk(category) {
+            userInput.value = category;
+            sendMessage();
+        }
+
+        function startQuiz() {
+            const quizIndex = Math.floor(Math.random() * quizData.length);
+            const q = quizData[quizIndex];
+
+            let quizHtml = `
+            <div class="quiz-card">
+                <h3>🧠 Knowledge Challenge</h3>
+                <p style="margin: 15px 0; font-size: 16px;">${q.q}</p>
+                <div class="quiz-options">
+                    ${q.a.map((opt, i) => `<div class="quiz-opt" onclick="checkAnswer(${quizIndex}, ${i})">${opt}</div>`).join('')}
+                </div>
+            </div>
+        `;
+
+            showTyping(() => {
+                addMessage("bot", quizHtml, true);
+            });
+        }
+
+        function checkAnswer(qIdx, selected) {
+            const correct = quizData[qIdx].correct;
+            if (selected === correct) {
+                addMessage("bot", "✅ Correct! Excellent knowledge of Pakistan! +5 Progress Points.");
+                progress = Math.min(100, progress + 5);
+                progressBar.style.width = progress + "%";
+            } else {
+                addMessage("bot", `❌ Not quite. The correct answer was **${quizData[qIdx].a[correct]}**.`);
+            }
+        }
+
+        function sendMessage() {
+            const msg = userInput.value.trim();
+            if (!msg) return;
+
+            addMessage("user", msg);
+            userInput.value = "";
+
+            const lowMsg = msg.toLowerCase();
+
+            showTyping(() => {
+                if (lowMsg.includes("history")) {
+                    const data = KNOWLEDGE_BASE.history;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("culture")) {
+                    const data = KNOWLEDGE_BASE.culture;
+                    addMessageMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("geography")) {
+                    const data = KNOWLEDGE_BASE.geography;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("economy") || lowMsg.includes("cpec")) {
+                    const data = KNOWLEDGE_BASE.economy;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("sport") || lowMsg.includes("nadeem") || lowMsg.includes("cricket")) {
+                    const data = KNOWLEDGE_BASE.sports;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("tourism") || lowMsg.includes("travel") || lowMsg.includes("visit")) {
+                    const data = KNOWLEDGE_BASE.tourism;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("science") || lowMsg.includes("physic") || lowMsg.includes("invention")) {
+                    const data = KNOWLEDGE_BASE.science;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("literature") || lowMsg.includes("poem") || lowMsg.includes("poetry")) {
+                    const data = KNOWLEDGE_BASE.literature;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("architecture") || lowMsg.includes("mosque") || lowMsg.includes("building")) {
+                    const data = KNOWLEDGE_BASE.architecture;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("wildlife") || lowMsg.includes("animal") || lowMsg.includes("markhor")) {
+                    const data = KNOWLEDGE_BASE.wildlife;
+                    addMessage("bot", `<strong>${data.title}</strong><br><br>${data.content}`, true);
+                } else if (lowMsg.includes("fact")) {
+                    const fact = FACTS[Math.floor(Math.random() * FACTS.length)];
+                    addMessage("bot", `💡 <strong>Did you know?</strong><br>${fact}`, true);
+                } else if (lowMsg.includes("quiz")) {
+                    startQuiz();
+                } else if (lowMsg.includes("translate")) {
+                    addMessage("bot", "I can help with basic translations!<br>Hello -> Assalam-o-Alaikum<br>How are you? -> Aap kaise hain?<br>Thank you -> Shukriya", true);
+                } else if (lowMsg.includes("thank")) {
+                    addMessage("bot", "You're very welcome! I'm here to help you learn about the beautiful land of Pakistan. 🇵🇰");
+                } else if (lowMsg.includes("hello") || lowMsg.includes("hi")) {
+                    addMessage("bot", "Assalam-o-Alaikum! I am your Pakistan Educational Guide. What would you like to learn today?");
+                } else {
+                    addMessage("bot", "I'm still learning! You can ask about history, culture, geography, economy, sports, or try a 'quiz'.");
+                }
+            });
+        }
+
+        // Initial Welcome
+        window.onload = () => {
+            setTimeout(() => {
+                showTyping(() => {
+                    addMessage("bot", "Assalam-o-Alaikum! 🇵🇰 I am your advanced guide to everything Pakistan. From the peaks of K2 to the history of the Indus Valley, I'm here to help. How can I assist you today?");
+                });
+            }, 500);
+        };
+    </script>
+
+</body>
+
+</html>
